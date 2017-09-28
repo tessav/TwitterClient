@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
  */
 
 public final class ParseRelativeDate {
-    public final String[] timeFrames = {"seconds", "minutes", "hours", "days", "weeks", "years"};
+    public final String[] TIME_FRAMES = {"second", "minute", "hour", "day", "week", "year"};
 
     public String getRelativeTimeAgo(String rawJsonDate) {
         String relativeDate = parseDate(rawJsonDate);
@@ -40,17 +40,18 @@ public final class ParseRelativeDate {
 
     private String prettifyTimeStamp(String relativeDate) {
         String relativeDateDigits = relativeDate.replaceAll("\\D+","");
-        for (int i = 0; i < timeFrames.length; i++) {
-            if (isMatchTimeFrame(timeFrames[i], relativeDate)) {
-                return relativeDateDigits + timeFrames[i].substring(0,1).toUpperCase();
+        for (int i = 0; i < TIME_FRAMES.length; i++) {
+            if (isMatchTimeFrame(TIME_FRAMES[i], relativeDate)) {
+                return relativeDateDigits + TIME_FRAMES[i].substring(0,1);
             }
         }
         return relativeDate;
     }
 
-    private boolean isMatchTimeFrame(String timeframe, String relativeDate) {
-        Pattern pattern = Pattern.compile("\\b" + timeframe + "\\b");
+    private boolean isMatchTimeFrame(String timeFrame, String relativeDate) {
+        Pattern pattern = Pattern.compile(".*" + timeFrame + ".*");
         Matcher matcher = pattern.matcher(relativeDate);
+        Log.d("re", matcher.toString());
         return matcher.matches();
     }
 

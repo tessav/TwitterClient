@@ -1,4 +1,4 @@
-package com.codepath.apps.restclienttemplate;
+package com.codepath.apps.restclienttemplate.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.codepath.apps.restclienttemplate.R;
 import com.codepath.apps.restclienttemplate.models.Tweet;
 import com.codepath.apps.restclienttemplate.utils.CircleTransform;
 import com.codepath.apps.restclienttemplate.utils.ParseRelativeDate;

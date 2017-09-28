@@ -1,4 +1,4 @@
-package com.codepath.apps.restclienttemplate;
+package com.codepath.apps.restclienttemplate.activities;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -7,7 +7,13 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
+import com.codepath.apps.restclienttemplate.R;
+import com.codepath.apps.restclienttemplate.TwitterApp;
+import com.codepath.apps.restclienttemplate.adapters.TweetAdapter;
 import com.codepath.apps.restclienttemplate.models.Tweet;
+import com.codepath.apps.restclienttemplate.network.TwitterClient;
+import com.codepath.apps.restclienttemplate.utils.EndlessRecyclerViewScrollListener;
+import com.codepath.apps.restclienttemplate.utils.PaginationParamType;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
@@ -24,6 +30,7 @@ public class TimelineActivity extends AppCompatActivity {
     TweetAdapter tweetAdapter;
     ArrayList<Tweet> tweets;
     RecyclerView rvTweets;
+    private EndlessRecyclerViewScrollListener scrollListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,17 +40,27 @@ public class TimelineActivity extends AppCompatActivity {
         tweets = new ArrayList<>();
         tweetAdapter = new TweetAdapter(tweets);
         rvTweets = (RecyclerView) findViewById(R.id.rvTweet);
-        LinearLayoutManager llmanager = new LinearLayoutManager(this);
-        rvTweets.setLayoutManager(llmanager);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        rvTweets.setLayoutManager(linearLayoutManager);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(rvTweets.getContext(),
-                llmanager.getOrientation());
+                linearLayoutManager.getOrientation());
         rvTweets.addItemDecoration(dividerItemDecoration);
+        scrollListener = new EndlessRecyclerViewScrollListener(linearLayoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                // Triggered only when new data needs to be appended to the list
+                // Add whatever code is needed to append new items to the bottom of the list
+                Tweet maxTweet = tweets.get(totalItemsCount - 1);
+                populateTimeline(PaginationParamType.MAX, maxTweet.uid - 1);
+            }
+        };
+        rvTweets.addOnScrollListener(scrollListener);
         rvTweets.setAdapter(tweetAdapter);
-        populateTimeline();
+        populateTimeline(PaginationParamType.SINCE, 1);
     }
 
-    private void populateTimeline() {
-        client.getHomeTimeline(new JsonHttpResponseHandler() {
+    private void populateTimeline(PaginationParamType tweetIdType, long tweetId) {
+        client.getHomeTimeline(tweetIdType, tweetId, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 Log.d("TwitterClient", response.toString());

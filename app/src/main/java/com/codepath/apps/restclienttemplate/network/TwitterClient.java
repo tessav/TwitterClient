@@ -1,7 +1,9 @@
-package com.codepath.apps.restclienttemplate;
+package com.codepath.apps.restclienttemplate.network;
 
 import android.content.Context;
 
+import com.codepath.apps.restclienttemplate.R;
+import com.codepath.apps.restclienttemplate.utils.PaginationParamType;
 import com.codepath.oauth.OAuthBaseClient;
 import com.github.scribejava.apis.TwitterApi;
 import com.github.scribejava.core.builder.api.BaseApi;
@@ -40,14 +42,12 @@ public class TwitterClient extends OAuthBaseClient {
 				String.format(REST_CALLBACK_URL_TEMPLATE, context.getString(R.string.intent_host),
 						context.getString(R.string.intent_scheme), context.getPackageName(), FALLBACK_URL));
 	}
-	// CHANGE THIS
-	// DEFINE METHODS for different API endpoints here
-	public void getHomeTimeline(AsyncHttpResponseHandler handler) {
+
+	public void getHomeTimeline(PaginationParamType tweetIdType, long tweetId, AsyncHttpResponseHandler handler) {
 		String apiUrl = getApiUrl("/statuses/home_timeline.json");
-		// Can specify query string params directly or through RequestParams.
-		RequestParams params = new RequestParams();
-		params.put("count", 25);
-		params.put("since_id", 1);
+        RequestParams params = new RequestParams();
+        params.put("count", 25);
+        params.put(tweetIdType.param(), tweetId);
 		client.get(apiUrl, params, handler);
 	}
 
