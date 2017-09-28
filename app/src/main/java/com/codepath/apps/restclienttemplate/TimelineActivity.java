@@ -2,6 +2,7 @@ package com.codepath.apps.restclienttemplate;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -28,16 +29,15 @@ public class TimelineActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_timeline);
-
         client = TwitterApp.getRestClient();
-
-        // init the arraylist
         tweets = new ArrayList<>();
-        // construct adapter from datasource
         tweetAdapter = new TweetAdapter(tweets);
-        // RecyclerView setup
         rvTweets = (RecyclerView) findViewById(R.id.rvTweet);
-        rvTweets.setLayoutManager(new LinearLayoutManager(this));
+        LinearLayoutManager llmanager = new LinearLayoutManager(this);
+        rvTweets.setLayoutManager(llmanager);
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(rvTweets.getContext(),
+                llmanager.getOrientation());
+        rvTweets.addItemDecoration(dividerItemDecoration);
         rvTweets.setAdapter(tweetAdapter);
         populateTimeline();
     }
