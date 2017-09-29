@@ -12,7 +12,6 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.codepath.apps.restclienttemplate.R;
@@ -47,6 +46,8 @@ public class TimelineActivity extends AppCompatActivity {
     ArrayList<Tweet> tweets;
     Context context;
     private EndlessRecyclerViewScrollListener scrollListener;
+    Profile profile;
+    private final int REQUEST_CODE = 20;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,7 +78,7 @@ public class TimelineActivity extends AppCompatActivity {
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 Log.d("TwitterClient", response.toString());
                 try {
-                    Profile profile = Profile.fromJSON(response);
+                    profile = Profile.fromJSON(response);
                     Glide.with(context)
                         .load(profile.profileImageUrl)
                         .centerCrop()
@@ -89,20 +90,8 @@ public class TimelineActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                Log.d("TWITTERCLIENT", responseString);
-                throwable.printStackTrace();
-            }
-
-            @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                Log.d("TWITTERCLIENT", errorResponse.toString());
-                throwable.printStackTrace();
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
-                Log.d("TWITTERCLIENT", errorResponse.toString());
+                Log.d("TwitterClient", errorResponse.toString());
                 throwable.printStackTrace();
             }
         });
@@ -130,10 +119,44 @@ public class TimelineActivity extends AppCompatActivity {
     private void attachFABListener() {
         fabCompose.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Toast.makeText(context, "compose", Toast.LENGTH_LONG).show();
-                Intent i = new Intent(TimelineActivity.this, ComposeActivity.class);
-                startActivity(i);
+                composeTweet();
             }
+        });
+    }
+
+    private void composeTweet() {
+        Intent i = new Intent(TimelineActivity.this, ComposeActivity.class);
+        i.putExtra("profileImage", profile.profileImageUrl);
+        startActivityForResult(i, REQUEST_CODE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // REQUEST_CODE is defined above
+        if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
+            String tweet = data.getExtras().getString("tweet");
+            submitTweet(tweet);
+        }
+    }
+
+    private void submitTweet(String tweet) {
+        client.postTweet(tweet, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                Log.d("post", response.toString());
+                try {
+                    Tweet tweet = Tweet.fromJSON(response);
+                    tweets.add(0, tweet);
+                    tweetAdapter.notifyItemInserted(0);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                Log.d("post", errorResponse.toString());
+            }
+
         });
     }
 
@@ -143,10 +166,9 @@ public class TimelineActivity extends AppCompatActivity {
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 Log.d("TwitterClient", response.toString());
             }
-
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
-                Log.d("TWITTERCLIENT", response.toString());
+                Log.d("TwitterClient", response.toString());
                 for (int i = 0; i < response.length(); i++) {
                     try {
                         Tweet tweet = Tweet.fromJSON(response.getJSONObject(i));
@@ -157,26 +179,12 @@ public class TimelineActivity extends AppCompatActivity {
                     }
                 }
             }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                Log.d("TWITTERCLIENT", responseString);
-                throwable.printStackTrace();
-            }
-
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                Log.d("TWITTERCLIENT", errorResponse.toString());
-                throwable.printStackTrace();
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONArray errorResponse) {
-                Log.d("TWITTERCLIENT", errorResponse.toString());
+                Log.d("TwitterClient", errorResponse.toString());
                 throwable.printStackTrace();
             }
         });
-
-
     }
+
 }

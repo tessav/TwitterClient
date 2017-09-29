@@ -1,9 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.codepath.apps.restclienttemplate.activities.ComposeActivity">
 
-</android.support.constraint.ConstraintLayout>
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar_main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        app:titleTextColor="@android:color/black">
+
+        <ImageView
+            android:id="@+id/ivCancel"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="left"
+            android:layout_marginRight="10dp"
+            android:adjustViewBounds="true"
+            android:tint="#00b6f1"
+            android:src="@drawable/ic_close_black_24dp" />
+
+        <Button
+            android:id="@+id/btnTweet"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_marginEnd="5dp"
+            android:backgroundTint="#00b6f1"
+            android:elevation="3dp"
+            android:text="Tweet"
+            android:textColor="@android:color/white" />
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_margin="10dp"
+            android:text="140" />
+
+    </android.support.v7.widget.Toolbar>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="?attr/actionBarSize"
+        android:backgroundTint="#fff"
+        android:padding="20dp">
+
+        <ImageView
+            android:id="@+id/ivProfileImage"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="left"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="10dp"
+            android:adjustViewBounds="true"
+            android:src="@drawable/ic_launcher" />
+
+        <EditText
+            android:id="@+id/etTweetBody"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentTop="true"
+            android:backgroundTint="@android:color/transparent"
+            android:layout_toEndOf="@+id/ivProfileImage"
+            android:hint="What's happening?"
+            android:ems="10"
+            android:inputType="textMultiLine" />
+    </RelativeLayout>
+
+</android.support.design.widget.CoordinatorLayout>
