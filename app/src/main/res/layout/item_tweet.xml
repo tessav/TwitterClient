@@ -25,7 +25,7 @@
         android:layout_marginStart="10dp"
         android:layout_toEndOf="@+id/ivProfileImage"
         android:text="TextView"
-        android:textColor="@android:color/black"
+        android:textColor="#14171a"
         android:textSize="15sp"
         android:textStyle="bold" />
 
@@ -37,7 +37,7 @@
         android:layout_marginStart="5dp"
         android:layout_toEndOf="@+id/tvUserName"
         android:text="TextView"
-        android:textColor="@android:color/darker_gray"
+        android:textColor="#657786"
         android:textSize="14sp" />
 
     <TextView
@@ -48,7 +48,7 @@
         android:layout_marginStart="5dp"
         android:layout_toEndOf="@+id/tvScreenName"
         android:text="TextView"
-        android:textColor="@android:color/darker_gray"
+        android:textColor="#657786"
         android:textSize="14sp" />
 
     <TextView
@@ -58,6 +58,6 @@
         android:layout_alignStart="@+id/tvUserName"
         android:layout_below="@+id/tvUserName"
         android:text="TextView"
-        android:textColor="@android:color/background_dark"
+        android:textColor="#14171a"
         android:textSize="14sp" />
 </RelativeLayout>

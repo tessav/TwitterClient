@@ -1,20 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#fff"
+    android:fitsSystemWindows="true"
     tools:context="com.codepath.apps.restclienttemplate.activities.TimelineActivity">
+
+    <!--<include-->
+        <!--layout="@layout/toolbar_main"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content">-->
+        <!--<ImageView-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:src="@drawable/ic_launcher"-->
+            <!--android:layout_gravity="left" />-->
+    <!--</include>-->
+    <android.support.v7.widget.Toolbar
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/toolbar_main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        app:titleTextColor="@android:color/black">
+
+        <ImageView
+            android:id="@+id/ivProfileImage"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:adjustViewBounds="true"
+            android:layout_marginRight="10dp"
+            android:layout_gravity="left" />
+
+        <TextView
+            android:id="@+id/toolbarTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:layout_marginLeft="30dp"
+            android:text="Home"
+            android:textAppearance="@android:style/TextAppearance.Holo.Widget.ActionBar.Title"
+            android:textStyle="bold" />
+    </android.support.v7.widget.Toolbar>
+
+    <android.support.design.widget.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|right"
+        android:layout_margin="20dp"
+        android:src="@drawable/ic_add_black_24dp"
+        android:tint="#fff"
+        android:clickable="true"
+        android:id="@+id/fabCompose"
+        app:backgroundTint="#00b6f1"
+        app:layout_anchor="@+id/rvTweet"
+        app:layout_anchorGravity="bottom|right|end" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rvTweet"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0" />
-</android.support.constraint.ConstraintLayout>
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="?attr/actionBarSize" />
+
+</android.support.design.widget.CoordinatorLayout>
