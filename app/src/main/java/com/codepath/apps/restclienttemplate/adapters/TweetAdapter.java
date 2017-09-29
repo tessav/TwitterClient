@@ -24,12 +24,11 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
 
     private List<Tweet> mTweets;
     Context context;
-    // pass in Tweets array in constructor
+
     public TweetAdapter(List<Tweet> tweets) {
         mTweets = tweets;
     }
 
-    // for each row, inflate the layout and cache references into View Holder
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -62,8 +61,6 @@ public class TweetAdapter extends RecyclerView.Adapter<TweetAdapter.ViewHolder> 
     public int getItemCount() {
         return mTweets.size();
     }
-
-    // create ViewHolder class
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView ivProfileImage;

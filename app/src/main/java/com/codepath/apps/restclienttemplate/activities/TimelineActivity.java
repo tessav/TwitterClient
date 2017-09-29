@@ -108,8 +108,6 @@ public class TimelineActivity extends AppCompatActivity {
         scrollListener = new EndlessRecyclerViewScrollListener(linearLayoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                // Triggered only when new data needs to be appended to the list
-                // Add whatever code is needed to append new items to the bottom of the list
                 Tweet maxTweet = tweets.get(totalItemsCount - 1);
                 populateTimeline(PaginationParamType.MAX, maxTweet.uid - 1);
             }
@@ -133,7 +131,6 @@ public class TimelineActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // REQUEST_CODE is defined above
         if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
             String tweet = data.getExtras().getString("tweet");
             submitTweet(tweet);
