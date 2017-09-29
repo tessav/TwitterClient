@@ -46,6 +46,7 @@ public class TimelineActivity extends AppCompatActivity {
     ArrayList<Tweet> tweets;
     Context context;
     private EndlessRecyclerViewScrollListener scrollListener;
+    LinearLayoutManager linearLayoutManager;
     Profile profile;
     private final int REQUEST_CODE = 20;
 
@@ -58,7 +59,7 @@ public class TimelineActivity extends AppCompatActivity {
         client = TwitterApp.getRestClient();
         tweets = new ArrayList<>();
         tweetAdapter = new TweetAdapter(tweets);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager = new LinearLayoutManager(this);
         rvTweets.setLayoutManager(linearLayoutManager);
         addDividers(linearLayoutManager);
         attachScrollListener(linearLayoutManager);
@@ -148,6 +149,7 @@ public class TimelineActivity extends AppCompatActivity {
                     Tweet tweet = Tweet.fromJSON(response);
                     tweets.add(0, tweet);
                     tweetAdapter.notifyItemInserted(0);
+                    linearLayoutManager.scrollToPositionWithOffset(0, 0);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
