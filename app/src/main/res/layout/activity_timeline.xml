@@ -42,10 +42,10 @@
         android:layout_gravity="bottom|right"
         android:layout_margin="20dp"
         android:src="@drawable/ic_add_black_24dp"
-        android:tint="#fff"
+        android:tint="@color/white"
         android:clickable="true"
         android:id="@+id/fabCompose"
-        app:backgroundTint="#00b6f1"
+        app:backgroundTint="@color/twitter"
         app:layout_anchor="@+id/rvTweet"
         app:layout_anchorGravity="bottom|right|end" />
 
