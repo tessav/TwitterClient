@@ -23,12 +23,14 @@ import com.codepath.apps.restclienttemplate.models.Tweet;
 import com.codepath.apps.restclienttemplate.network.TwitterClient;
 import com.codepath.apps.restclienttemplate.utils.CircleTransform;
 import com.codepath.apps.restclienttemplate.utils.EndlessRecyclerViewScrollListener;
+import com.codepath.apps.restclienttemplate.utils.ItemClickSupport;
 import com.codepath.apps.restclienttemplate.utils.PaginationParamType;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.parceler.Parcels;
 
 import java.util.ArrayList;
 
@@ -63,12 +65,13 @@ public class TimelineActivity extends AppCompatActivity {
         tweetAdapter = new TweetAdapter(tweets);
         linearLayoutManager = new LinearLayoutManager(this);
         rvTweets.setLayoutManager(linearLayoutManager);
-        addDividers(linearLayoutManager);
-        attachScrollListener(linearLayoutManager);
         rvTweets.setAdapter(tweetAdapter);
         populateTimeline(PaginationParamType.SINCE, 1);
+        addDividers();
+        attachScrollListener();
         attachFABListener();
         attachPullToRefreshListener();
+        attachOnClickListener();
         setupToolbar();
     }
 
@@ -101,13 +104,13 @@ public class TimelineActivity extends AppCompatActivity {
         });
     }
 
-    private void addDividers(LinearLayoutManager linearLayoutManager) {
+    private void addDividers() {
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(rvTweets.getContext(),
                 linearLayoutManager.getOrientation());
         rvTweets.addItemDecoration(dividerItemDecoration);
     }
 
-    private void attachScrollListener(LinearLayoutManager linearLayoutManager) {
+    private void attachScrollListener() {
         scrollListener = new EndlessRecyclerViewScrollListener(linearLayoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
@@ -122,19 +125,11 @@ public class TimelineActivity extends AppCompatActivity {
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                // Your code to refresh the list here.
-                // Make sure you call swipeContainer.setRefreshing(false)
-                // once the network request has completed successfully.
                 tweetAdapter.clear();
                 populateTimeline(PaginationParamType.SINCE, 1);
                 swipeContainer.setRefreshing(false);
             }
         });
-        // Configure the refreshing colors
-        swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
-                android.R.color.holo_green_light,
-                android.R.color.holo_orange_light,
-                android.R.color.holo_red_light);
 
     }
 
@@ -144,6 +139,19 @@ public class TimelineActivity extends AppCompatActivity {
                 composeTweet();
             }
         });
+    }
+
+    private void attachOnClickListener() {
+        ItemClickSupport.addTo(rvTweets).setOnItemClickListener(
+                new ItemClickSupport.OnItemClickListener() {
+                    @Override
+                    public void onItemClicked(RecyclerView recyclerView, int position, View v) {
+                        Intent i = new Intent(TimelineActivity.this, TweetDetailActivity.class);
+                        i.putExtra("tweet", Parcels.wrap(tweets.get(position)));
+                        startActivity(i);
+                    }
+                }
+        );
     }
 
     private void composeTweet() {
@@ -184,10 +192,6 @@ public class TimelineActivity extends AppCompatActivity {
 
     private void populateTimeline(PaginationParamType tweetIdType, long tweetId) {
         client.getHomeTimeline(tweetIdType, tweetId, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                Log.d("TwitterClient", response.toString());
-            }
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
                 Log.d("TwitterClient", response.toString());
