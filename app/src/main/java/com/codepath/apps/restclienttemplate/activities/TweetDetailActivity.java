@@ -13,6 +13,7 @@ import com.codepath.apps.restclienttemplate.R;
 import com.codepath.apps.restclienttemplate.models.Tweet;
 import com.codepath.apps.restclienttemplate.utils.CircleTransform;
 import com.codepath.apps.restclienttemplate.utils.ParseRelativeDate;
+import com.codepath.apps.restclienttemplate.utils.RoundedCornersTransformation;
 
 import org.parceler.Parcels;
 
@@ -65,6 +66,7 @@ public class TweetDetailActivity extends AppCompatActivity {
             Glide.with(context)
                     .load(tweet.imageUrl)
                     .crossFade()
+                    .transform(new RoundedCornersTransformation(context, 25, 0))
                     .into(ivPostImage);
         }
     }
