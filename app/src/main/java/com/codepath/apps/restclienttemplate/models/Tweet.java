@@ -28,9 +28,14 @@ public class Tweet {
         tweet.uid = jsonObject.getLong("id");
         tweet.createdAt = jsonObject.getString("created_at");
         tweet.user = User.fromJSON(jsonObject.getJSONObject("user"));
-        JSONArray media = jsonObject.getJSONObject("entities").getJSONArray("media");
-        if ((media.length() > 0) && media.getJSONObject(0).getString("type").equals("photo")) {
-            tweet.imageUrl = media.getJSONObject(0).getString("media_url");
+        boolean entt = jsonObject.has("entities");
+        if (jsonObject.getJSONObject("entities").has("media")) {
+            JSONArray media = jsonObject.getJSONObject("entities").getJSONArray("media");
+            if ((media.length() > 0) && media.getJSONObject(0).getString("type").equals("photo")) {
+                tweet.imageUrl = media.getJSONObject(0).getString("media_url");
+            }
+        } else {
+            tweet.imageUrl = "";
         }
         return tweet;
     }
