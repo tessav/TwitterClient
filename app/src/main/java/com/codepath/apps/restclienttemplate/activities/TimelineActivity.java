@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
@@ -156,38 +157,24 @@ public class TimelineActivity extends AppCompatActivity {
 
     private void composeTweet() {
         Intent i = new Intent(TimelineActivity.this, ComposeActivity.class);
-        i.putExtra("profileImage", profile.profileImageUrl);
+        i.putExtra("isReply", false);
         startActivityForResult(i, REQUEST_CODE);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
-            String tweet = data.getExtras().getString("tweet");
-            submitTweet(tweet);
+            Tweet tweet = (Tweet) Parcels.unwrap(data.getParcelableExtra("tweet"));
+            insertTweet(tweet);
+            Snackbar.make(rvTweets, R.string.finish_compose, Snackbar.LENGTH_LONG)
+                    .show();
         }
     }
 
-    private void submitTweet(String tweet) {
-        client.postTweet(tweet, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                Log.d("post", response.toString());
-                try {
-                    Tweet tweet = Tweet.fromJSON(response);
-                    tweets.add(0, tweet);
-                    tweetAdapter.notifyItemInserted(0);
-                    linearLayoutManager.scrollToPositionWithOffset(0, 0);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                Log.d("post", errorResponse.toString());
-            }
-
-        });
+    private void insertTweet(Tweet tweet) {
+        tweets.add(0, tweet);
+        tweetAdapter.notifyItemInserted(0);
+        linearLayoutManager.scrollToPositionWithOffset(0, 0);
     }
 
     private void populateTimeline(PaginationParamType tweetIdType, long tweetId) {

@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
+import android.text.Html;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
@@ -18,11 +19,19 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.codepath.apps.restclienttemplate.R;
 import com.codepath.apps.restclienttemplate.TwitterApp;
+import com.codepath.apps.restclienttemplate.models.Profile;
+import com.codepath.apps.restclienttemplate.models.Tweet;
 import com.codepath.apps.restclienttemplate.network.TwitterClient;
 import com.codepath.apps.restclienttemplate.utils.CircleTransform;
+import com.loopj.android.http.JsonHttpResponseHandler;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.parceler.Parcels;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import cz.msebera.android.httpclient.Header;
 
 public class ComposeActivity extends AppCompatActivity {
     @BindView(R.id.toolbar_main) Toolbar toolbar;
@@ -31,9 +40,14 @@ public class ComposeActivity extends AppCompatActivity {
     @BindView(R.id.etTweetBody) EditText etTweetBody;
     @BindView(R.id.tvMsgCount) TextView tvMsgCount;
     @BindView(R.id.ivCancel) ImageView ivCancel;
+    @BindView(R.id.tvReply) TextView tvReply;
 
     private TwitterClient client;
     Context context;
+    Profile profile;
+    boolean isReply;
+    String screenName;
+    long statusId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,11 +60,44 @@ public class ComposeActivity extends AppCompatActivity {
         setupMessageListener();
         setupSubmitListener();
         setupCancelListener();
-        Glide.with(context)
-                .load(getIntent().getStringExtra("profileImage"))
-                .centerCrop()
-                .transform(new CircleTransform(context))
-                .into(ivProfileImage);
+        getProfileImage();
+        setReply();
+    }
+
+    private void getProfileImage() {
+        client.getUserProfile(new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                Log.d("TwitterClient", response.toString());
+                try {
+                    profile = Profile.fromJSON(response);
+                    Glide.with(context)
+                            .load(profile.profileImageUrl)
+                            .centerCrop()
+                            .transform(new CircleTransform(context))
+                            .into(ivProfileImage);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                Log.d("TwitterClient", errorResponse.toString());
+                throwable.printStackTrace();
+            }
+        });
+    }
+
+    private void setReply() {
+        isReply = getIntent().getBooleanExtra("isReply", false);
+        if (isReply) {
+            screenName = getIntent().getStringExtra("screenName");
+            statusId = getIntent().getLongExtra("statusId", 0);
+            tvReply.setText(Html.fromHtml("Replying to <font color=\"#1DA1F2\"> @" + screenName + "</font>"));
+            etTweetBody.setText("@" + screenName + " ");
+            etTweetBody.setSelection(etTweetBody.getText().length());
+        }
     }
 
     private void setupToolbar() {
@@ -99,12 +146,52 @@ public class ComposeActivity extends AppCompatActivity {
     }
 
     private void submitForm() {
-        String tweet = etTweetBody.getText().toString();
-        Intent data = new Intent();
-        data.putExtra("code", 20);
-        data.putExtra("tweet", tweet);
-        setResult(RESULT_OK, data);
-        closeForm();
+        if (isReply) {
+            replyTweet();
+        } else {
+            postTweet();
+        }
+    }
+
+    private void postTweet() {
+        client.postTweet(etTweetBody.getText().toString(), new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                Log.d("post", response.toString());
+                returnResultToParent(response);
+            }
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                Log.d("post", errorResponse.toString());
+            }
+        });
+    }
+
+    private void replyTweet() {
+        client.replyTweet(etTweetBody.getText().toString(), statusId, new JsonHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                Log.d("post", response.toString());
+                returnResultToParent(response);
+            }
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                Log.d("post", errorResponse.toString());
+            }
+        });
+    }
+
+    private void returnResultToParent(JSONObject response) {
+        try {
+            Tweet tweet = Tweet.fromJSON(response);
+            Intent data = new Intent();
+            data.putExtra("code", 20);
+            data.putExtra("tweet", Parcels.wrap(tweet));
+            setResult(RESULT_OK, data);
+            closeForm();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     private void closeForm() {

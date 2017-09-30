@@ -1,11 +1,15 @@
 package com.codepath.apps.restclienttemplate.activities;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -29,8 +33,12 @@ public class TweetDetailActivity extends AppCompatActivity {
     @BindView(R.id.tvTimeStamp) TextView tvTimeStamp;
     @BindView(R.id.toolbar_main) Toolbar toolbar;
     @BindView(R.id.ivBack) ImageView ivBack;
+    @BindView(R.id.fabReply) FloatingActionButton fabReply;
+    @BindView(R.id.layout) RelativeLayout rl;
 
+    private final int REQUEST_CODE = 20;
     Context context;
+    Tweet tweet;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +49,7 @@ public class TweetDetailActivity extends AppCompatActivity {
         setupToolbar();
         populateView();
         enableBackButton();
+        attachFABListener();
     }
 
     private void setupToolbar() {
@@ -51,7 +60,7 @@ public class TweetDetailActivity extends AppCompatActivity {
     }
 
     private void populateView() {
-        Tweet tweet = (Tweet) Parcels.unwrap(getIntent().getParcelableExtra("tweet"));
+        tweet = (Tweet) Parcels.unwrap(getIntent().getParcelableExtra("tweet"));
         tvUserName.setText(tweet.user.name);
         tvScreenName.setText("@" + tweet.user.screenName);
         tvBody.setText(tweet.body);
@@ -77,6 +86,30 @@ public class TweetDetailActivity extends AppCompatActivity {
                 finish();
             }
         });
+    }
+
+    private void attachFABListener() {
+        fabReply.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                composeTweet();
+            }
+        });
+    }
+
+    private void composeTweet() {
+        Intent i = new Intent(TweetDetailActivity.this, ComposeActivity.class);
+        i.putExtra("isReply", true);
+        i.putExtra("statusId", tweet.uid);
+        i.putExtra("screenName", tweet.user.screenName);
+        startActivityForResult(i, REQUEST_CODE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
+            Snackbar.make(rl, R.string.finish_compose, Snackbar.LENGTH_LONG)
+                    .show();
+        }
     }
 
 
