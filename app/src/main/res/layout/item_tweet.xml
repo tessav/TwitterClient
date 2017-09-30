@@ -57,6 +57,8 @@
         android:layout_height="wrap_content"
         android:layout_alignStart="@+id/tvUserName"
         android:layout_below="@+id/tvUserName"
+        android:autoLink="all"
+        android:linksClickable="true"
         android:text="TextView"
         android:textColor="@color/twitterBlack"
         android:textSize="14sp" />

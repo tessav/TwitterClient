@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -40,6 +41,7 @@ public class TimelineActivity extends AppCompatActivity {
     @BindView(R.id.fabCompose) FloatingActionButton fabCompose;
     @BindView(R.id.toolbar_main) Toolbar toolbar;
     @BindView(R.id.ivProfileImage) ImageView ivProfileImage;
+    @BindView(R.id.swipeContainer) SwipeRefreshLayout swipeContainer;
 
     private TwitterClient client;
     TweetAdapter tweetAdapter;
@@ -66,6 +68,7 @@ public class TimelineActivity extends AppCompatActivity {
         rvTweets.setAdapter(tweetAdapter);
         populateTimeline(PaginationParamType.SINCE, 1);
         attachFABListener();
+        attachPullToRefreshListener();
         setupToolbar();
     }
 
@@ -113,6 +116,26 @@ public class TimelineActivity extends AppCompatActivity {
             }
         };
         rvTweets.addOnScrollListener(scrollListener);
+    }
+
+    private void attachPullToRefreshListener() {
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // Your code to refresh the list here.
+                // Make sure you call swipeContainer.setRefreshing(false)
+                // once the network request has completed successfully.
+                tweetAdapter.clear();
+                populateTimeline(PaginationParamType.SINCE, 1);
+                swipeContainer.setRefreshing(false);
+            }
+        });
+        // Configure the refreshing colors
+        swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
+
     }
 
     private void attachFABListener() {
@@ -185,5 +208,6 @@ public class TimelineActivity extends AppCompatActivity {
             }
         });
     }
+
 
 }
