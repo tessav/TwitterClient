@@ -54,6 +54,7 @@
         android:clickable="true"
         android:id="@+id/fabCompose"
         app:backgroundTint="@color/twitter"
+        app:layout_behavior="com.codepath.apps.restclienttemplate.utils.ScrollAwareFABBehavior"
         app:layout_anchor="@+id/rvTweet"
         app:layout_anchorGravity="bottom|right|end" />
 
