@@ -2,6 +2,8 @@ package com.codepath.apps.restclienttemplate.activities;
 
 import android.content.Context;
 import android.content.Intent;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -11,6 +13,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.VideoView;
 
 import com.bumptech.glide.Glide;
 import com.codepath.apps.restclienttemplate.R;
@@ -35,6 +38,7 @@ public class TweetDetailActivity extends AppCompatActivity {
     @BindView(R.id.ivBack) ImageView ivBack;
     @BindView(R.id.fabReply) FloatingActionButton fabReply;
     @BindView(R.id.layout) RelativeLayout rl;
+    @BindView(R.id.vvPostVideo) VideoView vvPostVideo;
 
     private final int REQUEST_CODE = 20;
     Context context;
@@ -71,12 +75,22 @@ public class TweetDetailActivity extends AppCompatActivity {
                 .centerCrop().crossFade()
                 .transform(new CircleTransform(context))
                 .into(ivProfileImage);
-        if (!tweet.imageUrl.isEmpty()) {
+        if (tweet.mediaType == Tweet.MediaType.IMAGE) {
             Glide.with(context)
-                    .load(tweet.imageUrl)
+                    .load(tweet.mediaUrl)
                     .crossFade()
                     .transform(new RoundedCornersTransformation(context, 25, 0))
                     .into(ivPostImage);
+        } else if (tweet.mediaType == Tweet.MediaType.VIDEO) {
+            vvPostVideo.setVisibility(View.VISIBLE);
+            Uri uri = Uri.parse(tweet.mediaUrl);
+            vvPostVideo.setVideoURI(uri);
+            vvPostVideo.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                // Close the progress bar and play the video
+                public void onPrepared(MediaPlayer mp) {
+                    vvPostVideo.start();
+                }
+            });
         }
     }
 

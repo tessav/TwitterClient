@@ -16,7 +16,14 @@ public class Tweet {
     public long uid;
     public User user;
     public String createdAt;
-    public String imageUrl;
+    public String mediaUrl;
+    public MediaType mediaType;
+
+    public enum MediaType {
+        IMAGE,
+        VIDEO,
+        NONE
+    }
 
     public Tweet() {
 
@@ -28,14 +35,38 @@ public class Tweet {
         tweet.uid = jsonObject.getLong("id");
         tweet.createdAt = jsonObject.getString("created_at");
         tweet.user = User.fromJSON(jsonObject.getJSONObject("user"));
+        String videoUrl = getVideoUrl(jsonObject);
+        String imageUrl = getImageUrl(jsonObject);
+        if (!videoUrl.isEmpty()) {
+            tweet.mediaType = MediaType.VIDEO;
+            tweet.mediaUrl = videoUrl;
+        } else if (!imageUrl.isEmpty()) {
+            tweet.mediaType = MediaType.IMAGE;
+            tweet.mediaUrl = imageUrl;
+        } else {
+            tweet.mediaType = MediaType.NONE;
+            tweet.mediaUrl = "";
+        }
+        return tweet;
+    }
+
+    private static String getImageUrl(JSONObject jsonObject) throws JSONException {
         if (jsonObject.getJSONObject("entities").has("media")) {
             JSONArray media = jsonObject.getJSONObject("entities").getJSONArray("media");
             if ((media.length() > 0) && media.getJSONObject(0).getString("type").equals("photo")) {
-                tweet.imageUrl = media.getJSONObject(0).getString("media_url");
+                return media.getJSONObject(0).getString("media_url");
             }
-        } else {
-            tweet.imageUrl = "";
         }
-        return tweet;
+        return "";
+    }
+
+    private static String getVideoUrl(JSONObject jsonObject) throws JSONException {
+        if (jsonObject.has("extended_entities")) {
+            JSONArray media = jsonObject.getJSONObject("extended_entities").getJSONArray("media");
+            if ((media.length() > 0) && media.getJSONObject(0).getString("type").equals("video")) {
+                return media.getJSONObject(0).getJSONObject("video_info").getJSONArray("variants").getJSONObject(0).getString("url"); //.getJSONObject(0).getString("url");
+            }
+        }
+        return "";
     }
 }

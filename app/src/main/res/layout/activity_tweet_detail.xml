@@ -105,6 +105,7 @@
             android:layout_alignParentEnd="true"
             android:layout_alignParentStart="true"
             android:layout_below="@+id/ivProfileImage"
+            android:layout_marginBottom="15dp"
             android:layout_marginTop="20dp"
             android:autoLink="all"
             android:lineSpacingExtra="5sp"
@@ -122,6 +123,14 @@
             android:layout_marginTop="20dp"
             android:scaleType="fitCenter"
             app:srcCompat="@color/white" />
+
+        <VideoView
+            android:id="@+id/vvPostVideo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/ivPostImage"
+            android:visibility="invisible" />
 
     </RelativeLayout>
 
