@@ -61,7 +61,29 @@ public class ComposeActivity extends AppCompatActivity {
         setupSubmitListener();
         setupCancelListener();
         getProfileImage();
-        setReply();
+        processIntent();
+    }
+
+    private void processIntent() {
+        Intent intent = getIntent();
+        isReply = intent.getBooleanExtra("isReply", false);
+        if (isReply) {
+            screenName = getIntent().getStringExtra("screenName");
+            statusId = getIntent().getLongExtra("statusId", 0);
+            tvReply.setText(Html.fromHtml("Replying to <font color=\"#1DA1F2\"> @" + screenName + "</font>"));
+            setTweetBody("@" + screenName + " ");
+        } else {
+            String sharedUrl = intent.getStringExtra(Intent.EXTRA_TEXT);
+            String sharedSubject = intent.getStringExtra(Intent.EXTRA_SUBJECT);
+            if (sharedUrl != null && sharedSubject != null) {
+                setTweetBody(sharedSubject + " " + sharedUrl);
+            }
+        }
+    }
+
+    private void setTweetBody(String text) {
+        etTweetBody.setText(text);
+        etTweetBody.setSelection(etTweetBody.getText().length());
     }
 
     private void getProfileImage() {
@@ -87,17 +109,6 @@ public class ComposeActivity extends AppCompatActivity {
                 throwable.printStackTrace();
             }
         });
-    }
-
-    private void setReply() {
-        isReply = getIntent().getBooleanExtra("isReply", false);
-        if (isReply) {
-            screenName = getIntent().getStringExtra("screenName");
-            statusId = getIntent().getLongExtra("statusId", 0);
-            tvReply.setText(Html.fromHtml("Replying to <font color=\"#1DA1F2\"> @" + screenName + "</font>"));
-            etTweetBody.setText("@" + screenName + " ");
-            etTweetBody.setSelection(etTweetBody.getText().length());
-        }
     }
 
     private void setupToolbar() {
