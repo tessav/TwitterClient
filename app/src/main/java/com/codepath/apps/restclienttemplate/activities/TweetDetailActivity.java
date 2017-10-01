@@ -113,7 +113,7 @@ public class TweetDetailActivity extends AppCompatActivity {
     private void composeTweet() {
         Intent i = new Intent(TweetDetailActivity.this, ComposeActivity.class);
         i.putExtra("isReply", true);
-        i.putExtra("statusId", tweet.uid);
+        i.putExtra("statusId", String.valueOf(tweet.uid));
         i.putExtra("screenName", tweet.user.screenName);
         startActivityForResult(i, REQUEST_CODE);
     }

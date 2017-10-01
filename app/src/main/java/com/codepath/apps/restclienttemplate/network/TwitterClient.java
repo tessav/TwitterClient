@@ -3,6 +3,7 @@ package com.codepath.apps.restclienttemplate.network;
 import android.content.Context;
 
 import com.codepath.apps.restclienttemplate.R;
+import com.codepath.apps.restclienttemplate.models.TweetDraft;
 import com.codepath.apps.restclienttemplate.utils.PaginationParamType;
 import com.codepath.oauth.OAuthBaseClient;
 import com.github.scribejava.apis.TwitterApi;
@@ -56,18 +57,13 @@ public class TwitterClient extends OAuthBaseClient {
         client.get(apiUrl, handler);
     }
 
-    public void postTweet(String tweet, AsyncHttpResponseHandler handler) {
+    public void postTweet(TweetDraft draft, AsyncHttpResponseHandler handler) {
         String apiUrl = getApiUrl("/statuses/update.json");
         RequestParams params = new RequestParams();
-        params.put("status", tweet);
-        client.post(apiUrl, params, handler);
-    }
-
-    public void replyTweet(String tweet, long uid, AsyncHttpResponseHandler handler) {
-        String apiUrl = getApiUrl("/statuses/update.json");
-        RequestParams params = new RequestParams();
-        params.put("status", tweet);
-        params.put("in_reply_to_status_id", String.valueOf(uid));
+        params.put("status", draft.postBody);
+        if (draft.isReply) {
+            params.put("in_reply_to_status_id", draft.statusId);
+        }
         client.post(apiUrl, params, handler);
     }
 
