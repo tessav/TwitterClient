@@ -37,7 +37,6 @@ repositories {
 
 def dbflow_version = "4.0.3"
 
-
 dependencies {
     compile fileTree(dir: 'libs', include: '*.jar')
     // Glide for remote image loading
@@ -62,3 +61,4 @@ dependencies {
     annotationProcessor 'org.parceler:parceler:1.1.6'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
 }
+

@@ -9,9 +9,11 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.VideoView;
 
@@ -39,6 +41,7 @@ public class TweetDetailActivity extends AppCompatActivity {
     @BindView(R.id.fabReply) FloatingActionButton fabReply;
     @BindView(R.id.layout) RelativeLayout rl;
     @BindView(R.id.vvPostVideo) VideoView vvPostVideo;
+    @BindView(R.id.scrollView) ScrollView scrollView;
 
     private final int REQUEST_CODE = 20;
     Context context;
@@ -82,11 +85,18 @@ public class TweetDetailActivity extends AppCompatActivity {
                     .transform(new RoundedCornersTransformation(context, 25, 0))
                     .into(ivPostImage);
         } else if (tweet.mediaType == Tweet.MediaType.VIDEO) {
+            ivPostImage.setVisibility(View.INVISIBLE);
+            scrollView.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    return false;
+                }
+            });
             vvPostVideo.setVisibility(View.VISIBLE);
             Uri uri = Uri.parse(tweet.mediaUrl);
             vvPostVideo.setVideoURI(uri);
+            vvPostVideo.setZOrderOnTop(true);
             vvPostVideo.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                // Close the progress bar and play the video
                 public void onPrepared(MediaPlayer mp) {
                     vvPostVideo.start();
                 }
