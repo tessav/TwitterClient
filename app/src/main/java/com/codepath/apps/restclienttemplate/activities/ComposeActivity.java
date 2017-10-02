@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -16,6 +17,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -28,6 +30,7 @@ import com.codepath.apps.restclienttemplate.models.TweetDraft;
 import com.codepath.apps.restclienttemplate.network.TwitterClient;
 import com.codepath.apps.restclienttemplate.utils.CircleTransform;
 import com.codepath.apps.restclienttemplate.utils.SharedPreferenceHelper;
+import com.codepath.apps.restclienttemplate.utils.Utils;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONException;
@@ -46,6 +49,7 @@ public class ComposeActivity extends AppCompatActivity implements SaveDraftFragm
     @BindView(R.id.tvMsgCount) TextView tvMsgCount;
     @BindView(R.id.ivCancel) ImageView ivCancel;
     @BindView(R.id.tvReply) TextView tvReply;
+    @BindView(R.id.rl) RelativeLayout rl;
 
     private TwitterClient client;
     private SharedPreferenceHelper sharedPreferenceHelper;
@@ -185,18 +189,23 @@ public class ComposeActivity extends AppCompatActivity implements SaveDraftFragm
 
     private void submitForm() {
         tweetDraft.postBody = etTweetBody.getText().toString();
-        client.postTweet(tweetDraft, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                Log.d("post", response.toString());
-                sharedPreferenceHelper.clearDraft();
-                returnResultToParent(response);
-            }
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                Log.d("post", errorResponse.toString());
-            }
-        });
+        if (Utils.isNetworkAvailable(this)) {
+            client.postTweet(tweetDraft, new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                    Log.d("post", response.toString());
+                    sharedPreferenceHelper.clearDraft();
+                    returnResultToParent(response);
+                }
+                @Override
+                public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                    Log.d("post", errorResponse.toString());
+                }
+            });
+        } else {
+            Snackbar.make(rl, R.string.not_connected, Snackbar.LENGTH_LONG)
+                    .show();
+        }
     }
 
     private void returnResultToParent(JSONObject response) {
