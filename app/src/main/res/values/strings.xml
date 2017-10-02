@@ -7,4 +7,5 @@
     <string name="intent_host">cprest</string>
     <string name="finish_compose">Your Tweet was posted!</string>
     <string name="save_draft">Save Tweet?</string>
+    <string name="not_connected">No network connection available.</string>
 </resources>

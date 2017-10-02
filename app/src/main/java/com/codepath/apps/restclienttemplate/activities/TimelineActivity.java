@@ -26,6 +26,7 @@ import com.codepath.apps.restclienttemplate.utils.CircleTransform;
 import com.codepath.apps.restclienttemplate.utils.EndlessRecyclerViewScrollListener;
 import com.codepath.apps.restclienttemplate.utils.ItemClickSupport;
 import com.codepath.apps.restclienttemplate.utils.PaginationParamType;
+import com.codepath.apps.restclienttemplate.utils.Utils;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
@@ -67,13 +68,23 @@ public class TimelineActivity extends AppCompatActivity {
         linearLayoutManager = new LinearLayoutManager(this);
         rvTweets.setLayoutManager(linearLayoutManager);
         rvTweets.setAdapter(tweetAdapter);
-        populateTimeline(PaginationParamType.SINCE, 1);
-        addDividers();
-        attachScrollListener();
-        attachFABListener();
-        attachPullToRefreshListener();
-        attachOnClickListener();
         setupToolbar();
+        attachPullToRefreshListener();
+        attachScrollListener();
+        addDividers();
+        checkAndPopulate();
+    }
+
+    private void checkAndPopulate() {
+        if (Utils.isNetworkAvailable(this)) {
+            populateTimeline(PaginationParamType.SINCE, 1);
+            attachFABListener();
+            attachOnClickListener();
+            getUserProfileImage();
+        } else {
+            Snackbar.make(rvTweets, R.string.not_connected, Snackbar.LENGTH_LONG)
+                    .show();
+        }
     }
 
     private void setupToolbar() {
@@ -81,6 +92,9 @@ public class TimelineActivity extends AppCompatActivity {
         getSupportActionBar().setElevation(10);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setDisplayShowCustomEnabled(true);
+    }
+
+    private void getUserProfileImage() {
         client.getUserProfile(new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -88,10 +102,10 @@ public class TimelineActivity extends AppCompatActivity {
                 try {
                     profile = Profile.fromJSON(response);
                     Glide.with(context)
-                        .load(profile.profileImageUrl)
-                        .centerCrop()
-                        .transform(new CircleTransform(context))
-                        .into(ivProfileImage);
+                            .load(profile.profileImageUrl)
+                            .centerCrop()
+                            .transform(new CircleTransform(context))
+                            .into(ivProfileImage);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -99,8 +113,8 @@ public class TimelineActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                Log.d("TwitterClient", errorResponse.toString());
-                throwable.printStackTrace();
+//                Log.d("TwitterClient", errorResponse.toString());
+//                throwable.printStackTrace();
             }
         });
     }
@@ -127,7 +141,7 @@ public class TimelineActivity extends AppCompatActivity {
             @Override
             public void onRefresh() {
                 tweetAdapter.clear();
-                populateTimeline(PaginationParamType.SINCE, 1);
+                checkAndPopulate();
                 swipeContainer.setRefreshing(false);
             }
         });
@@ -194,8 +208,7 @@ public class TimelineActivity extends AppCompatActivity {
             }
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                Log.d("TwitterClient", errorResponse.toString());
-                throwable.printStackTrace();
+                //throwable.printStackTrace();
             }
         });
     }
