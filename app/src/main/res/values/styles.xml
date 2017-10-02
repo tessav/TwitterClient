@@ -12,6 +12,11 @@
     <!-- Application theme. -->
     <style name="AppTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+        <item name="colorPrimary">@color/twitter</item>
+        <!--   darker variant for the status bar and contextual app bars -->
+        <item name="colorPrimaryDark">@color/twitterGrey</item>
+        <!--   theme UI controls like checkboxes and text fields -->
+        <item name="colorAccent">@color/twitterAccent</item>
 
     </style>
 

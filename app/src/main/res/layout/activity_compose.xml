@@ -9,7 +9,7 @@
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar_main"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="?attr/actionBarSize"
         android:background="@android:color/white"
         app:titleTextColor="@android:color/black">
 
@@ -20,34 +20,40 @@
             android:layout_gravity="left"
             android:layout_marginRight="10dp"
             android:adjustViewBounds="true"
-            android:tint="#00b6f1"
-            android:src="@drawable/ic_close_black_24dp" />
+            app:srcCompat="@drawable/ic_close_black_24dp"
+            android:tint="@color/twitter" />
 
         <Button
             android:id="@+id/btnTweet"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="right"
-            android:layout_marginEnd="5dp"
-            android:backgroundTint="#00b6f1"
+            android:layout_marginEnd="10dp"
+            android:background="@color/twitter"
             android:elevation="3dp"
+            android:enabled="true"
+            android:minHeight="35dp"
+            android:minWidth="70dp"
             android:text="Tweet"
             android:textColor="@android:color/white" />
-        <!--<TextView-->
-            <!--android:id="@+id/textView"-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_gravity="right"-->
-            <!--android:layout_margin="10dp"-->
-            <!--android:text="140" />-->
+
+        <TextView
+            android:id="@+id/tvMsgCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_margin="10dp"
+            android:textColor="@color/twitterGrey"
+            android:text="140" />
 
     </android.support.v7.widget.Toolbar>
 
     <RelativeLayout
         android:layout_width="match_parent"
+        android:id="@+id/rl"
         android:layout_height="match_parent"
         android:layout_marginTop="?attr/actionBarSize"
-        android:backgroundTint="#fff"
+        android:backgroundTint="@color/white"
         android:padding="20dp">
 
         <ImageView
@@ -55,22 +61,29 @@
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_gravity="left"
-            android:layout_marginTop="10dp"
             android:layout_marginRight="10dp"
             android:adjustViewBounds="true"
-            android:src="@drawable/ic_launcher" />
+            android:layout_below="@+id/tvReply"
+            android:layout_alignParentStart="true" />
 
         <EditText
             android:id="@+id/etTweetBody"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentTop="true"
             android:backgroundTint="@android:color/transparent"
-            android:layout_toEndOf="@+id/ivProfileImage"
-            android:hint="What's happening?"
             android:ems="10"
-            android:inputType="textMultiLine" />
+            android:hint="What's happening?"
+            android:inputType="textMultiLine"
+            android:layout_alignTop="@+id/ivProfileImage"
+            android:layout_alignParentEnd="true"
+            android:layout_toEndOf="@+id/ivProfileImage" />
+
+        <TextView
+            android:id="@+id/tvReply"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_toEndOf="@+id/ivProfileImage" />
     </RelativeLayout>
 
 </android.support.design.widget.CoordinatorLayout>

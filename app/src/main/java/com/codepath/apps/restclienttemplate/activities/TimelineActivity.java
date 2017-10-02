@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -22,12 +24,15 @@ import com.codepath.apps.restclienttemplate.models.Tweet;
 import com.codepath.apps.restclienttemplate.network.TwitterClient;
 import com.codepath.apps.restclienttemplate.utils.CircleTransform;
 import com.codepath.apps.restclienttemplate.utils.EndlessRecyclerViewScrollListener;
+import com.codepath.apps.restclienttemplate.utils.ItemClickSupport;
 import com.codepath.apps.restclienttemplate.utils.PaginationParamType;
+import com.codepath.apps.restclienttemplate.utils.Utils;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.parceler.Parcels;
 
 import java.util.ArrayList;
 
@@ -40,6 +45,7 @@ public class TimelineActivity extends AppCompatActivity {
     @BindView(R.id.fabCompose) FloatingActionButton fabCompose;
     @BindView(R.id.toolbar_main) Toolbar toolbar;
     @BindView(R.id.ivProfileImage) ImageView ivProfileImage;
+    @BindView(R.id.swipeContainer) SwipeRefreshLayout swipeContainer;
 
     private TwitterClient client;
     TweetAdapter tweetAdapter;
@@ -61,12 +67,24 @@ public class TimelineActivity extends AppCompatActivity {
         tweetAdapter = new TweetAdapter(tweets);
         linearLayoutManager = new LinearLayoutManager(this);
         rvTweets.setLayoutManager(linearLayoutManager);
-        addDividers(linearLayoutManager);
-        attachScrollListener(linearLayoutManager);
         rvTweets.setAdapter(tweetAdapter);
-        populateTimeline(PaginationParamType.SINCE, 1);
-        attachFABListener();
         setupToolbar();
+        attachPullToRefreshListener();
+        attachScrollListener();
+        addDividers();
+        checkAndPopulate();
+    }
+
+    private void checkAndPopulate() {
+        if (Utils.isNetworkAvailable(this)) {
+            populateTimeline(PaginationParamType.SINCE, 1);
+            attachFABListener();
+            attachOnClickListener();
+            getUserProfileImage();
+        } else {
+            Snackbar.make(rvTweets, R.string.not_connected, Snackbar.LENGTH_LONG)
+                    .show();
+        }
     }
 
     private void setupToolbar() {
@@ -74,6 +92,9 @@ public class TimelineActivity extends AppCompatActivity {
         getSupportActionBar().setElevation(10);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setDisplayShowCustomEnabled(true);
+    }
+
+    private void getUserProfileImage() {
         client.getUserProfile(new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -81,10 +102,10 @@ public class TimelineActivity extends AppCompatActivity {
                 try {
                     profile = Profile.fromJSON(response);
                     Glide.with(context)
-                        .load(profile.profileImageUrl)
-                        .centerCrop()
-                        .transform(new CircleTransform(context))
-                        .into(ivProfileImage);
+                            .load(profile.profileImageUrl)
+                            .centerCrop()
+                            .transform(new CircleTransform(context))
+                            .into(ivProfileImage);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -92,19 +113,19 @@ public class TimelineActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                Log.d("TwitterClient", errorResponse.toString());
-                throwable.printStackTrace();
+//                Log.d("TwitterClient", errorResponse.toString());
+//                throwable.printStackTrace();
             }
         });
     }
 
-    private void addDividers(LinearLayoutManager linearLayoutManager) {
+    private void addDividers() {
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(rvTweets.getContext(),
                 linearLayoutManager.getOrientation());
         rvTweets.addItemDecoration(dividerItemDecoration);
     }
 
-    private void attachScrollListener(LinearLayoutManager linearLayoutManager) {
+    private void attachScrollListener() {
         scrollListener = new EndlessRecyclerViewScrollListener(linearLayoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
@@ -115,6 +136,18 @@ public class TimelineActivity extends AppCompatActivity {
         rvTweets.addOnScrollListener(scrollListener);
     }
 
+    private void attachPullToRefreshListener() {
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                tweetAdapter.clear();
+                checkAndPopulate();
+                swipeContainer.setRefreshing(false);
+            }
+        });
+
+    }
+
     private void attachFABListener() {
         fabCompose.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -123,48 +156,43 @@ public class TimelineActivity extends AppCompatActivity {
         });
     }
 
+    private void attachOnClickListener() {
+        ItemClickSupport.addTo(rvTweets).setOnItemClickListener(
+                new ItemClickSupport.OnItemClickListener() {
+                    @Override
+                    public void onItemClicked(RecyclerView recyclerView, int position, View v) {
+                        Intent i = new Intent(TimelineActivity.this, TweetDetailActivity.class);
+                        i.putExtra("tweet", Parcels.wrap(tweets.get(position)));
+                        startActivity(i);
+                    }
+                }
+        );
+    }
+
     private void composeTweet() {
         Intent i = new Intent(TimelineActivity.this, ComposeActivity.class);
-        i.putExtra("profileImage", profile.profileImageUrl);
+        i.putExtra("isReply", false);
         startActivityForResult(i, REQUEST_CODE);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK && requestCode == REQUEST_CODE) {
-            String tweet = data.getExtras().getString("tweet");
-            submitTweet(tweet);
+            Tweet tweet = (Tweet) Parcels.unwrap(data.getParcelableExtra("tweet"));
+            insertTweet(tweet);
+            Snackbar.make(rvTweets, R.string.finish_compose, Snackbar.LENGTH_LONG)
+                    .show();
         }
     }
 
-    private void submitTweet(String tweet) {
-        client.postTweet(tweet, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                Log.d("post", response.toString());
-                try {
-                    Tweet tweet = Tweet.fromJSON(response);
-                    tweets.add(0, tweet);
-                    tweetAdapter.notifyItemInserted(0);
-                    linearLayoutManager.scrollToPositionWithOffset(0, 0);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                Log.d("post", errorResponse.toString());
-            }
-
-        });
+    private void insertTweet(Tweet tweet) {
+        tweets.add(0, tweet);
+        tweetAdapter.notifyItemInserted(0);
+        linearLayoutManager.scrollToPositionWithOffset(0, 0);
     }
 
     private void populateTimeline(PaginationParamType tweetIdType, long tweetId) {
         client.getHomeTimeline(tweetIdType, tweetId, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                Log.d("TwitterClient", response.toString());
-            }
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
                 Log.d("TwitterClient", response.toString());
@@ -180,10 +208,10 @@ public class TimelineActivity extends AppCompatActivity {
             }
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                Log.d("TwitterClient", errorResponse.toString());
-                throwable.printStackTrace();
+                //throwable.printStackTrace();
             }
         });
     }
+
 
 }
